@@ -1,8 +1,6 @@
 library(tidyverse)
 library(sf)
-#library(mapview)
 library(leaflet)
-library(htmltools)
 
 zonas_orig <- st_read('results/zonas_orig.shp') %>%
   st_transform(4326)

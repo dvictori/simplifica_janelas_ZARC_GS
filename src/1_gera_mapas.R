@@ -1,13 +1,34 @@
 # Gera alguns mapas para tentar identificar melhor
 # os parâmetros para gerar o agrupamento de regiões
+# Não nomear as culturas para não gerar expectatíva de que serão as recomendadas
+# usando 'não tolerante', 'média tolerância', 'alta tolerância'
 
 library(tidyverse)
 library(sf)
 
 source('src/aux_func.R')
 
-resumo_zarc <- readRDS('results/resumo_zarc.RDS')
-janelas_zarc <- readRDS('results/janelas_zarc.RDS')
+resumo_zarc <- readRDS('results/resumo_zarc.RDS') %>%
+  filter(cultura != 'milheto') %>%
+  mutate(
+    tolerancia = 
+      case_when(
+        cultura == 'milho' ~ 'sem',
+        cultura == 'sorgo' ~ 'média',
+        cultura == 'mamona' ~ 'alta'
+      )
+  )
+
+janelas_zarc <- readRDS('results/janelas_zarc.RDS') %>%
+  filter(cultura != 'milheto') %>%
+  mutate(
+    tolerancia = 
+      case_when(
+        cultura == 'milho' ~ 'sem',
+        cultura == 'sorgo' ~ 'média',
+        cultura == 'mamona' ~ 'alta'
+      )
+  )
 
 janelas_zarc_long <- janelas_zarc %>%
   pivot_longer(ini_20:fim_40, values_to = 'decendio') %>%
@@ -40,7 +61,6 @@ brasil_gs <- brasil %>%
 
 brasil_gs %>%
   inner_join(resumo_zarc %>%
-               filter(cultura != 'milheto') %>%
                group_by(uf, geocodigo, cultura) %>%
                summarise(freq = min(freq, na.rm = TRUE))) %>%
   ggplot() +
@@ -54,6 +74,20 @@ brasil_gs %>%
 
 ggsave('figs/ZARC_risco_minimo_milho_sorgo_mamona.png')
 
+brasil_gs %>%
+  inner_join(resumo_zarc %>%
+               group_by(uf, geocodigo, tolerancia) %>%
+               summarise(freq = min(freq, na.rm = TRUE))) %>%
+  ggplot() +
+  geom_sf(aes(fill = as.factor(freq)), col = NA) +
+  scale_fill_manual(values = cores_zarc) +
+  geom_sf(data = uf, fill = NA) +
+  coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
+  facet_wrap(~tolerancia) +
+  theme(legend.position = 'bottom') +
+  labs(fill = 'ZARC: Risco mínimo - solo 2')
+
+ggsave('figs/ZARC_risco_minimo_classe_tolerancia.png')
 
 #### Milho ####
 
@@ -67,7 +101,7 @@ brasil_gs %>%
   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
   #scale_fill_manual(values = cores_zarc) +
   facet_wrap(~freq) +
-  labs(title = 'ZARC milho', fill = 'Decêndios aptos')
+  labs(title = 'ZARC cult. anual sem tolerância', fill = 'Decêndios aptos')
 
 ggsave('figs/milho_decendios_aptos.png')
 
@@ -80,36 +114,36 @@ brasil_gs %>%
   geom_sf(data = uf, fill = NA) +
   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
   facet_wrap(~período + risco) +
-  labs(title = 'ZARC milho', fill = 'decêndio')
+  labs(title = 'ZARC cult. anual sem tolerância', fill = 'decêndio')
 
 ggsave('figs/milho_inicio_final_janela.png')
 
 #### Milheto ####
 
-brasil_gs %>%
-  inner_join(resumo_zarc %>%
-               filter(cultura == 'milheto')) %>%
-  ggplot() +
-  geom_sf(aes(fill = as.factor(dec_acum)), col = NA) +
-  geom_sf(data = uf, fill = NA) +
-  coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
-  #scale_fill_manual(values = cores_zarc) +
-  facet_wrap(~freq) +
-  labs(title = 'ZARC milheto', fill = 'Decêndios aptos')
-
-ggsave('figs/milheto_decendios_aptos.png')
-
-brasil_gs %>%
-  inner_join(janelas_zarc_long %>%
-               filter(cultura == 'milheto')) %>%
-  ggplot() +
-  geom_sf(aes(fill = as.factor(decendio)), col = NA) +
-  geom_sf(data = uf, fill = NA) +
-  coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
-  facet_wrap(~período + risco) +
-  labs(title = 'ZARC milheto', fill = 'decêndio')
-
-ggsave('figs/milheto_inicio_final_janela.png')
+# brasil_gs %>%
+#   inner_join(resumo_zarc %>%
+#                filter(cultura == 'milheto')) %>%
+#   ggplot() +
+#   geom_sf(aes(fill = as.factor(dec_acum)), col = NA) +
+#   geom_sf(data = uf, fill = NA) +
+#   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
+#   #scale_fill_manual(values = cores_zarc) +
+#   facet_wrap(~freq) +
+#   labs(title = 'ZARC milheto', fill = 'Decêndios aptos')
+# 
+# ggsave('figs/milheto_decendios_aptos.png')
+# 
+# brasil_gs %>%
+#   inner_join(janelas_zarc_long %>%
+#                filter(cultura == 'milheto')) %>%
+#   ggplot() +
+#   geom_sf(aes(fill = as.factor(decendio)), col = NA) +
+#   geom_sf(data = uf, fill = NA) +
+#   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
+#   facet_wrap(~período + risco) +
+#   labs(title = 'ZARC milheto', fill = 'decêndio')
+# 
+# ggsave('figs/milheto_inicio_final_janela.png')
 
 #### Sorgo ####
 
@@ -122,7 +156,7 @@ brasil_gs %>%
   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
   #scale_fill_manual(values = cores_zarc) +
   facet_wrap(~freq) +
-  labs(title = 'ZARC sorgo', fill = 'Decêndios aptos')
+  labs(title = 'ZARC cult. anual média tolerância', fill = 'Decêndios aptos')
 
 ggsave('figs/sorgo_decendios_aptos.png')
 
@@ -134,7 +168,7 @@ brasil_gs %>%
   geom_sf(data = uf, fill = NA) +
   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
   facet_wrap(~período + risco) +
-  labs(title = 'ZARC sorgo', fill = 'decêndio')
+  labs(title = 'ZARC cult. anual média tolerância', fill = 'decêndio')
 
 ggsave('figs/sorgo_inicio_final_janela.png')
 
@@ -149,7 +183,7 @@ brasil_gs %>%
   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
   #scale_fill_manual(values = cores_zarc) +
   facet_wrap(~freq) +
-  labs(title = 'ZARC mamona', fill = 'Decêndios aptos')
+  labs(title = 'ZARC cult. anual alta tolerância', fill = 'Decêndios aptos')
 
 ggsave('figs/mamona_decendios_aptos.png')
 
@@ -161,6 +195,6 @@ brasil_gs %>%
   geom_sf(data = uf, fill = NA) +
   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
   facet_wrap(~período + risco) +
-  labs(title = 'ZARC mamona', fill = 'decêndio')
+  labs(title = 'ZARC cult. anual alta tolerância', fill = 'decêndio')
 
 ggsave('figs/mamona_inicio_final_janela.png')

@@ -66,7 +66,6 @@ tudo_na <- apply(janelas_milho[3:8], 1, function(x) sum(is.na(x)))
 
 janelas_milho<- janelas_milho[tudo_na < 6,]
 
-
 #### Sorgo ####
 
 zarc_sorgo <- abre_zarc_micura('dados/ZARC_sorgo_granifero.xls') %>%
