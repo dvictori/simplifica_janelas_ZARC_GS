@@ -13,22 +13,28 @@ resumo_zarc <- readRDS('results/resumo_zarc.RDS') %>%
   mutate(
     tolerancia = 
       case_when(
-        cultura == 'milho' ~ 'sem',
+        cultura == 'milho' ~ 'baixa',
         cultura == 'sorgo' ~ 'média',
         cultura == 'mamona' ~ 'alta'
       )
   )
+
+resumo_zarc$tolerancia <- factor(resumo_zarc$tolerancia,
+                                 levels = c('baixa', 'média', 'alta'))
 
 janelas_zarc <- readRDS('results/janelas_zarc.RDS') %>%
   filter(cultura != 'milheto') %>%
   mutate(
     tolerancia = 
       case_when(
-        cultura == 'milho' ~ 'sem',
+        cultura == 'milho' ~ 'baixa',
         cultura == 'sorgo' ~ 'média',
         cultura == 'mamona' ~ 'alta'
       )
   )
+
+janelas_zarc$tolerancia <- factor(janelas_zarc$tolerancia,
+                                  levels = c('baixa', 'média', 'alta'))
 
 janelas_zarc_long <- janelas_zarc %>%
   pivot_longer(ini_20:fim_40, values_to = 'decendio') %>%
@@ -101,7 +107,7 @@ brasil_gs %>%
   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
   #scale_fill_manual(values = cores_zarc) +
   facet_wrap(~freq) +
-  labs(title = 'ZARC cult. anual sem tolerância', fill = 'Decêndios aptos')
+  labs(title = 'ZARC cult. anual baixa tolerância', fill = 'Decêndios aptos')
 
 ggsave('figs/milho_decendios_aptos.png')
 
@@ -114,7 +120,7 @@ brasil_gs %>%
   geom_sf(data = uf, fill = NA) +
   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
   facet_wrap(~período + risco) +
-  labs(title = 'ZARC cult. anual sem tolerância', fill = 'decêndio')
+  labs(title = 'ZARC cult. anual baixa tolerância', fill = 'decêndio')
 
 ggsave('figs/milho_inicio_final_janela.png')
 

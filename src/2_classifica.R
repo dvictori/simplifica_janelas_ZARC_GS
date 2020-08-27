@@ -14,28 +14,28 @@ resumo_zarc <- readRDS('results/resumo_zarc.RDS') %>%
   mutate(
     tolerancia = 
       case_when(
-        cultura == 'milho' ~ 'sem',
+        cultura == 'milho' ~ 'baixa',
         cultura == 'sorgo' ~ 'média',
         cultura == 'mamona' ~ 'alta'
       )
   )
 
 resumo_zarc$tolerancia <- factor(resumo_zarc$tolerancia,
-                                 levels = c('sem', 'média', 'alta'))
+                                 levels = c('baixa', 'média', 'alta'))
 
 janelas_zarc <- readRDS('results/janelas_zarc.RDS') %>%
   filter(cultura != 'milheto') %>%
   mutate(
     tolerancia = 
       case_when(
-        cultura == 'milho' ~ 'sem',
+        cultura == 'milho' ~ 'baixa',
         cultura == 'sorgo' ~ 'média',
         cultura == 'mamona' ~ 'alta'
       )
   )
 
 janelas_zarc$tolerancia <- factor(janelas_zarc$tolerancia,
-                                  levels = c('sem', 'média', 'alta'))
+                                  levels = c('baixa', 'média', 'alta'))
 
 resumo_zarc_gs <- resumo_zarc %>%
   filter(uf %in% c('MA', 'PI', 'CE', 'RN', 'PB',
@@ -136,12 +136,12 @@ addNaoApta <- function(x){
 
 aptos_wide <- as.data.frame(lapply(aptos_wide, addNaoApta))
 
-aptos_wide$sem_20[is.na(aptos_wide$sem_20)] <- 'Não apto'
+aptos_wide$baixa_20[is.na(aptos_wide$baixa_20)] <- 'Não apto'
 aptos_wide$média_20[is.na(aptos_wide$média_20)] <- 'Não apto'
 aptos_wide$alta_20[is.na(aptos_wide$alta_20)] <- 'Não apto'
 aptos_wide$alta_30[is.na(aptos_wide$alta_30)] <- 'Não apto'
 
-aptos_wide$classe <- interaction(aptos_wide$sem_20,
+aptos_wide$classe <- interaction(aptos_wide$baixa_20,
                                  aptos_wide$média_20,
                                  aptos_wide$alta_20,
                                  aptos_wide$alta_30,
@@ -153,7 +153,7 @@ aptos_wide$classe <- NA
 # reduzindo para onde pode milho, sorgo ou mamona
 # somente 4 classes
 aptos_wide$classe[is.na(aptos_wide$classe) &
-                    aptos_wide$sem_20 != 'Não apto'] <- 'sem tolerância'
+                    aptos_wide$baixa_20 != 'Não apto'] <- 'baixa tolerância'
 aptos_wide$classe[is.na(aptos_wide$classe) &
                      aptos_wide$média_20 != 'Não apto'] <- 'média tolerância'
 aptos_wide$classe[is.na(aptos_wide$classe) &
@@ -185,7 +185,7 @@ janela_milho <- janelas %>%
                              breaks = c(0, 9, 18, 27, 36),
                              labels = c('1 tri', '2 tri', '3 tri', '4 tri'))) %>%
   select(uf, geocodigo, cultura, ini_trimestre, fim_trimestre) %>%
-  mutate(tolerancia = 'sem tolerância')
+  mutate(tolerancia = 'baixa tolerância')
 
 janela_sorgo <- janelas %>%
   filter(cultura == 'sorgo') %>%
@@ -228,7 +228,7 @@ janelas_trimestre <- rbind(janela_milho,
                            janela_mamona30)
 
 janelas_trimestre$tolerancia <- factor(janelas_trimestre$tolerancia,
-                                       levels = c('sem tolerância', 'média tolerância',
+                                       levels = c('baixa tolerância', 'média tolerância',
                                                   'alta tolerância (20)', 'alta tolerância (30)'))
 
 brasil_gs %>%
@@ -285,10 +285,10 @@ st_write(zonas, 'results/zonas_orig.shp', append = FALSE)
 #mapview::mapview(zonas, zcol = 'classe')
 
 #### correções manuais ####
-# classe 'sem tolerância.4 tri.2 tri' tem apenas 3 municípios no MA
-# juntando na classe 'sem tolerância.1 tri.2 tri'
+# classe 'baixa tolerância.4 tri.2 tri' tem apenas 3 municípios no MA
+# juntando na classe 'baixa tolerância.1 tri.2 tri'
 
-zonas[zonas$classe == 'sem tolerância.4 tri.2 tri','ini_trimestre'] <- '1 tri'
+zonas[zonas$classe == 'baixa tolerância.4 tri.2 tri','ini_trimestre'] <- '1 tri'
 
 # 'alta tolerância (30).4 tri.4 tri'
 # 4 municípios na BA, cercados por alta tolerância (30) 1tri 1tri
@@ -379,7 +379,7 @@ zonas[zonas$geocodigo %in% c(3127339, 3139250, 3124302),'ini_trimestre'] <- '4 t
 zonas[zonas$geocodigo %in% c(3127339, 3139250, 3124302),'fim_trimestre'] <- '4 tri'
 
 ### AL
-# Barra de Sto Antônio ST.2tri.3tri - Cercado de sem toler.2tri.2tri - encurtando
+# Barra de Sto Antônio ST.2tri.3tri - Cercado de baixa toler.2tri.2tri - encurtando
 zonas[zonas$geocodigo == 2700508,'fim_trimestre'] <- '2 tri'
 # Piaçabuçu - igual Barra de Sto. Ant. 
 zonas[zonas$geocodigo == 2706802,'fim_trimestre'] <- '2 tri'
@@ -404,8 +404,8 @@ zonas[zonas$geocodigo %in% c(2804904, 2800704),'fim_trimestre'] <- '2 tri'
 # clara divisa
 zonas[zonas$geocodigo == 2603009,'tolerancia'] <- 'alta tolerância (30)'
 
-# Exu - Sem tolerância, cercado de média tolerância no estado.
-# Mas sem tolerancia ao norte (divisa CE)
+# Exu - baixa tolerância, cercado de média tolerância no estado.
+# Mas baixa tolerancia ao norte (divisa CE)
 zonas[zonas$geocodigo == 2605301,'tolerancia'] <- 'média tolerância'
 
 # PB
