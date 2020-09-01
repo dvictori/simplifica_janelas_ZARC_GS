@@ -77,3 +77,5 @@ m2 <- leaflet() %>%
   )
 
 m2
+
+htmlwidgets::saveWidget(m2, 'index.html', selfcontained = FALSE)
