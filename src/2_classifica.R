@@ -6,7 +6,6 @@
 
 library(tidyverse)
 library(sf)
-library(mapview)
 source('src/aux_func.R')
 
 resumo_zarc <- readRDS('results/resumo_zarc.RDS') %>%
@@ -147,7 +146,8 @@ aptos_wide$classe <- interaction(aptos_wide$baixa_20,
                                  aptos_wide$alta_30,
                                  drop = TRUE)
 
-# Ao todo temos 36 combinações. Preciso realizar alguns agrupamentos
+# Ao todo temos 45 combinações. Preciso realizar alguns agrupamentos
+# Mais fácil fazer manualmente
 aptos_wide$classe <- NA
 
 # reduzindo para onde pode milho, sorgo ou mamona
@@ -280,10 +280,6 @@ zonas <- brasil_gs %>%
 
 st_write(zonas, 'results/zonas_orig.shp', append = FALSE)
 
-# Não está gerando com cores certas
-# trabalhar no QGis
-#mapview::mapview(zonas, zcol = 'classe')
-
 #### correções manuais ####
 # classe 'baixa tolerância.4 tri.2 tri' tem apenas 3 municípios no MA
 # juntando na classe 'baixa tolerância.1 tri.2 tri'
@@ -409,11 +405,12 @@ zonas[zonas$geocodigo == 2603009,'tolerancia'] <- 'alta tolerância (30)'
 zonas[zonas$geocodigo == 2605301,'tolerancia'] <- 'média tolerância'
 
 # PB
-# Salgadinho - encurta final de 2tri p/ 1tri
-zonas[zonas$geocodigo == 2513000,'fim_trimestre'] <- '1 tri'
 # Taperoá - Atrasa início do 1tri p/ 2tri
 zonas[zonas$geocodigo == 2516508,'ini_trimestre'] <- '2 tri'
 
+## RN
+# São fernando 2411809 - Aumenta final p/ 2 tri
+zonas[zonas$geocodigo == 2411809,'fim_trimestre'] <- '2 tri'
 
 # finalizando
 
@@ -438,6 +435,8 @@ ggplot(zonas) +
   geom_sf(aes(fill = classe), col = NA) +
   geom_sf(data = uf, fill = NA) +
   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0))
+
+# finalizado com 19 classes
 
 ggsave('figs/zonas_simplificadas.png')
 

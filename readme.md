@@ -5,7 +5,7 @@ Programa que irá substituir o GS precisa de um calendário de plantio e sugest�
 Cenários do ZARC considerados:
 * Baixa tolerância a seca - Milho 100 (id 17023)
 * Média tolerância a seca - Sorgo Granífero 100 (id 15904)
-* Alta tolerância a seca - Mamona 0 (id 15820)
+* Alta tolerância a seca - Mamona 0 (115 dias) (id 15608)
 
 obs: Usar solo 2. Se necessário, usa solo 1 tb. Mas não solo 3.
 Cenários e culturas selecionados pelo Monteiro

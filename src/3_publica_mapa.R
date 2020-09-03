@@ -27,12 +27,20 @@ zonas_limpo_orig <- zonas_orig %>%
 # mapview(zonas_limpo, zcol = 'classe',
 #         col.regions = rainbow(18))
 
-pal <- colorFactor(rainbow(18), domain = zonas_limpo$classe)
+#https://stackoverflow.com/questions/15282580/how-to-generate-a-number-of-most-distinctive-colors-in-r
+#cores <- grDevices::colors()[grep('gr(a|e)y', grDevices::colors(), invert = T)]
+
+# juntando duas paletas do ColorBrewer
+cores <- c(RColorBrewer::brewer.pal(12, 'Paired'),
+           RColorBrewer::brewer.pal(12, 'Set3')
+)
+
+pal <- colorFactor(cores[1:18], domain = zonas_limpo$classe)
 
 m <- leaflet(zonas_limpo) %>%
   addTiles() %>%
   addPolygons(
-    fillOpacity = 0.5,
+    fillOpacity = 0.7,
     fillColor = ~pal(classe),
     weight = 0,
     popup = ~paste(nome, '-', uf, '<br>Zona', classe),
@@ -48,7 +56,7 @@ m <- leaflet(zonas_limpo) %>%
 
 m
 
-pal2 <- colorFactor(rainbow(24), domain = as.numeric(zonas_limpo_orig$classe))
+pal2 <- colorFactor(cores[1:24], domain = as.numeric(zonas_limpo_orig$classe))
 
 m2 <- leaflet() %>%
   addTiles() %>%
@@ -74,7 +82,8 @@ m2 <- leaflet() %>%
   ) %>%
   addLayersControl(
     overlayGroups = c('zonas', 'zonas orig')
-  )
+  ) %>%
+  hideGroup('zonas orig')
 
 m2
 

@@ -147,7 +147,7 @@ janelas_milheto <- janelas_milheto[tudo_na < 6,]
 
 #### Mamona ####
 
-zarc_mamona <- abre_zarc_micura('dados/ZARC_mamona.xls') %>%
+zarc_mamona <- abre_zarc_micura('dados/ZARC_mamona_15608.xls') %>%
   mutate(freq = as.integer(freq))
 
 resumo_mamona<- zarc_mamona %>%
@@ -209,76 +209,76 @@ saveRDS(resumo_zarc, 'results/resumo_zarc.RDS')
 saveRDS(janelas_zarc, 'results/janelas_zarc.RDS')
 
 
-#### Velharia daqui p/ frente ####
-
-brasil_gs %>%
-  inner_join(zarc_milho %>%
-              filter(decendio == 9,
-                     freq < 100)) %>%
-  ggplot() +
-  geom_sf(aes(fill = as.factor(freq)), col = NA) +
-  scale_fill_manual(values = cores_zarc) +
-  geom_sf(data = uf, fill = NA) +
-  coord_sf(xlim = c(-52, -35), ylim = c(-25, 0))
-
-
-
-brasil_gs %>%
-  filter(sigla == 'PI') %>%
-  left_join(resumo_milho) %>%
-  ggplot() +
-  geom_sf(aes(fill = dec_acum), col = NA) +
-  #scale_fill_manual(values = cores_zarc) +
-  facet_wrap(~freq)
-
-
-
-
-
-
-
-resumo_zarc <- resumo_milho %>%
-  mutate(cultura = 'milho') %>%
-  rbind(resumo_sorgo %>%
-          mutate(cultura = 'sorgo')) %>%
-  rbind(resumo_milheto %>%
-          mutate(cultura = 'milheto')) %>%
-  rbind(resumo_mamona %>%
-          mutate(cultura = 'mamona'))
-
-brasil_gs %>%
-  left_join(resumo_zarc %>%
-              filter(freq == 30)) %>%
-  ggplot() +
-  geom_sf(aes(fill = n), col = NA) +
-  geom_sf(data = uf, fill = NA) +
-  coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
-  facet_wrap(~cultura)
-
-resumo_zarc_wide <- resumo_zarc %>%
-  #filter(freq == 20,
-  #       n > 1) %>%
-  pivot_wider(id_cols = c(uf, geocodigo), names_from = cultura, values_from = freq,
-              values_fn = min)
-
-resumo_zarc_2 <- resumo_zarc %>%
-  group_by(uf, geocodigo, cultura) %>%
-  summarise(freq = min(freq, na.rm = TRUE))
-
-brasil_gs %>%
-  inner_join(resumo_zarc_2) %>%
-  ggplot() +
-  geom_sf(aes(fill = as.factor(freq)), col = NA) +
-  scale_fill_manual(values = cores_zarc) +
-  geom_sf(data = uf, fill = NA) +
-  coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
-  facet_wrap(~cultura) +
-  labs(fill = 'Risco ZARC - solo 2')
-
-zonas <- resumo_zarc_2 %>%
-  ungroup () %>%
-  mutate(cf = as.factor(paste(cultura, freq, sep ='_'))) %>%
-  group_by(uf, geocodigo) %>%
-  summarise(zona = do.call(interaction, as.list(cf)))
-
-zonas %>% ungroup() %>% count(zona)
+# #### Velharia daqui p/ frente ####
+# 
+# brasil_gs %>%
+#   inner_join(zarc_milho %>%
+#               filter(decendio == 9,
+#                      freq < 100)) %>%
+#   ggplot() +
+#   geom_sf(aes(fill = as.factor(freq)), col = NA) +
+#   scale_fill_manual(values = cores_zarc) +
+#   geom_sf(data = uf, fill = NA) +
+#   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0))
+# 
+# 
+# 
+# brasil_gs %>%
+#   filter(sigla == 'PI') %>%
+#   left_join(resumo_milho) %>%
+#   ggplot() +
+#   geom_sf(aes(fill = dec_acum), col = NA) +
+#   #scale_fill_manual(values = cores_zarc) +
+#   facet_wrap(~freq)
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# resumo_zarc <- resumo_milho %>%
+#   mutate(cultura = 'milho') %>%
+#   rbind(resumo_sorgo %>%
+#           mutate(cultura = 'sorgo')) %>%
+#   rbind(resumo_milheto %>%
+#           mutate(cultura = 'milheto')) %>%
+#   rbind(resumo_mamona %>%
+#           mutate(cultura = 'mamona'))
+# 
+# brasil_gs %>%
+#   left_join(resumo_zarc %>%
+#               filter(freq == 30)) %>%
+#   ggplot() +
+#   geom_sf(aes(fill = n), col = NA) +
+#   geom_sf(data = uf, fill = NA) +
+#   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
+#   facet_wrap(~cultura)
+# 
+# resumo_zarc_wide <- resumo_zarc %>%
+#   #filter(freq == 20,
+#   #       n > 1) %>%
+#   pivot_wider(id_cols = c(uf, geocodigo), names_from = cultura, values_from = freq,
+#               values_fn = min)
+# 
+# resumo_zarc_2 <- resumo_zarc %>%
+#   group_by(uf, geocodigo, cultura) %>%
+#   summarise(freq = min(freq, na.rm = TRUE))
+# 
+# brasil_gs %>%
+#   inner_join(resumo_zarc_2) %>%
+#   ggplot() +
+#   geom_sf(aes(fill = as.factor(freq)), col = NA) +
+#   scale_fill_manual(values = cores_zarc) +
+#   geom_sf(data = uf, fill = NA) +
+#   coord_sf(xlim = c(-52, -35), ylim = c(-25, 0)) +
+#   facet_wrap(~cultura) +
+#   labs(fill = 'Risco ZARC - solo 2')
+# 
+# zonas <- resumo_zarc_2 %>%
+#   ungroup () %>%
+#   mutate(cf = as.factor(paste(cultura, freq, sep ='_'))) %>%
+#   group_by(uf, geocodigo) %>%
+#   summarise(zona = do.call(interaction, as.list(cf)))
+# 
+# zonas %>% ungroup() %>% count(zona)
